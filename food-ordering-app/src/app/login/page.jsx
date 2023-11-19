@@ -11,15 +11,8 @@ const LoginPage = () => {
   async function handleFormSubmit(e) {
     e.preventDefault();
     setLoginInProgress(true);
-    // const { ok } = await fetch("/api/login", {
-    //   body: JSON.stringify({ email, password }),
-    //   headers: { "Content-Type": "application/json" },
-    //   method: "POST",
-    // });
-    // if (ok) {
-    // } else {
-    // }
-    await signIn("Credentials");
+
+    await signIn("credentials", { email, password, callbackUrl: "/" });
 
     setLoginInProgress(false);
   }
@@ -49,7 +42,11 @@ const LoginPage = () => {
         <div className="my-4 text-center text-gray-500">
           or login with provider
         </div>
-        <button className="flex gap-4 items-center justify-center">
+        <button
+          type="button"
+          onClick={() => signIn("google", { callbackUrl: "/" })}
+          className="flex gap-4 items-center justify-center"
+        >
           <Image src={"/google.png"} alt={""} width={24} height={24} />
           Login with google
         </button>
