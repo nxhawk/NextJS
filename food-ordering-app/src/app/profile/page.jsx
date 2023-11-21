@@ -1,10 +1,10 @@
 "use client";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
 import { redirect } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import UserTabs from "@/components/layout/UserTabs";
+import EditableImage from "@/components/layout/EditableImage";
 
 const ProfilePage = () => {
   const session = useSession();
@@ -74,37 +74,6 @@ const ProfilePage = () => {
     });
   }
 
-  async function handleFileChange(e) {
-    const files = e.target.files;
-    if (files?.length === 1) {
-      const data = new FormData();
-      data.set("file", files[0]);
-
-      setIsUploading(true);
-
-      const uploadPromise = new Promise(async (resolve, reject) => {
-        const response = await fetch("/api/upload", {
-          method: "POST",
-          body: data,
-        });
-
-        const res = await response.json();
-        setIsUploading(false);
-        if (response.ok) {
-          setImage(res.url);
-          setPublicId(res.public_id);
-          resolve();
-        } else reject();
-      });
-
-      await toast.promise(uploadPromise, {
-        loading: "Uploading...",
-        success: "Upload complete",
-        error: "Upload error",
-      });
-    }
-  }
-
   if (status === "loading" || !profileFetched) {
     return "Loading...";
   }
@@ -120,28 +89,13 @@ const ProfilePage = () => {
         <div className="flex gap-4">
           <div>
             <div className="p-2 rounded-lg relative max-w-[120px]">
-              {image && (
-                <Image
-                  className="rounded-lg w-full h-full mb-1"
-                  src={image}
-                  alt="avatar"
-                  width={250}
-                  height={250}
-                />
-              )}
-              <label>
-                <input
-                  type="file"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
-                <span
-                  className="border border-gray-300 rounded-lg block p-2 text-center cursor-pointer"
-                  disabled={isUploading}
-                >
-                  Edit
-                </span>
-              </label>
+              <EditableImage
+                link={image}
+                setLink={setImage}
+                isUploading={isUploading}
+                setIsUploading={setIsUploading}
+                setPublicId={setPublicId}
+              />
             </div>
           </div>
           <form className="grow" onSubmit={handleProfileInfoUpdate}>
