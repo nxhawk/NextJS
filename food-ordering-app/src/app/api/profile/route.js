@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { User } from "../../../models/User";
+import { UserInfo } from "@/models/UserInfo";
 
 import { v2 as cloudinary } from "cloudinary";
 
@@ -23,7 +24,11 @@ export const PUT = async (req) => {
     data.public_id = user?.public_id;
   }
 
-  await User.updateOne({ email }, data);
+  const { name, image, public_id, ...otherUserInfo } = data;
+
+  await User.updateOne({ email }, { name, image, public_id });
+  await UserInfo.findOneAndUpdate({ email }, otherUserInfo, { upsert: true });
+
   if (user?.public_id) {
     await cloudinary.uploader.destroy(
       user.public_id,
@@ -39,5 +44,11 @@ export async function GET() {
   const session = await getServerSession(authOptions);
   const email = session?.user?.email;
 
-  return Response.json(await User.findOne({ email }));
+  if (!email) {
+    return Response.json({});
+  }
+
+  const user = await User.findOne({ email }).lean();
+  const userInfo = await UserInfo.findOne({ email }).lean();
+  return Response.json({ ...user, ...userInfo });
 }

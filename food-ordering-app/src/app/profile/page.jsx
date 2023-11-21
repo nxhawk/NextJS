@@ -4,6 +4,7 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import UserTabs from "@/components/layout/UserTabs";
 
 const ProfilePage = () => {
   const session = useSession();
@@ -12,12 +13,15 @@ const ProfilePage = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [image, setImage] = useState("");
   const [publicId, setPublicId] = useState(undefined);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const [phone, setPhone] = useState("");
   const [streetAddress, setStreetAddress] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [city, setCity] = useState("");
   const [country, setCountry] = useState("");
+
+  const [profileFetched, setProfileFetched] = useState(false);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -30,6 +34,8 @@ const ProfilePage = () => {
           setCity(data.city);
           setCountry(data.country);
           setPostalCode(data.postalCode);
+          setIsAdmin(data.admin);
+          setProfileFetched(true);
         });
       });
     }
@@ -99,7 +105,7 @@ const ProfilePage = () => {
     }
   }
 
-  if (status === "loading") {
+  if (status === "loading" || !profileFetched) {
     return "Loading...";
   }
 
@@ -109,8 +115,8 @@ const ProfilePage = () => {
 
   return (
     <section className="mt-8">
-      <h1 className="text-center text-primary text-4xl mb-4">Profile</h1>
-      <div className="max-w-md mx-auto">
+      <UserTabs isAdmin={isAdmin} />
+      <div className="max-w-md mx-auto mt-8">
         <div className="flex gap-4">
           <div>
             <div className="p-2 rounded-lg relative max-w-[120px]">

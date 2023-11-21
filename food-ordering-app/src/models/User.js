@@ -9,11 +9,6 @@ const UserSchema = new Schema(
     },
     image: { type: String },
     public_id: { type: String },
-    phone: { type: String },
-    streetAddress: { type: String },
-    city: { type: String },
-    country: { type: String },
-    postalCode: { type: String },
   },
   { timestamps: true }
 );
