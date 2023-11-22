@@ -54,6 +54,25 @@ const CategoriesPage = () => {
     });
   }
 
+  async function handleDeleteClick(_id) {
+    const promise = new Promise(async (resolve, reject) => {
+      const response = await fetch("/api/categories?_id=" + _id, {
+        method: "DELETE",
+      });
+
+      if (response.ok) resolve();
+      else reject();
+    });
+
+    await toast.promise(promise, {
+      loading: "Deleting...",
+      success: "Deleted",
+      error: "Error",
+    });
+
+    fetchCategories();
+  }
+
   if (profileLoading) {
     return "Loading user info...";
   }
@@ -83,27 +102,46 @@ const CategoriesPage = () => {
               onChange={(e) => setCategoryName(e.target.value)}
             />
           </div>
-          <div className="pb-2">
+          <div className="pb-2 flex gap-2">
             <button type="submit" className="border border-primary">
               {editedCategory ? "Update" : "Create"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setEditedCategory(null);
+                setCategoryName("");
+              }}
+            >
+              Cancel
             </button>
           </div>
         </div>
       </form>
       <div>
-        <h2 className="mt-8 text-sm text-gray-500">Edit category:</h2>
+        <h2 className="mt-8 text-sm text-gray-500">Existing categories</h2>
         {categories?.length > 0 &&
           categories.map((c) => (
-            <button
-              onClick={() => {
-                setEditedCategory(c);
-                setCategoryName(c.name);
-              }}
+            <div
               key={c._id}
-              className="bg-gray-200 rounded-xl p-2 px-4 cursor-pointer flex gap-1 mb-1"
+              className="bg-gray-100 rounded-xl p-2 px-4 flex gap-1 mb-1 items-center"
             >
-              <span>{c.name}</span>
-            </button>
+              <div className="grow">{c.name}</div>
+              <div className="flex gap-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditedCategory(c);
+                    setCategoryName(c.name);
+                  }}
+                >
+                  Edit
+                </button>
+                <button type="button" onClick={() => handleDeleteClick(c._id)}>
+                  Delete
+                </button>
+              </div>
+            </div>
           ))}
       </div>
     </section>

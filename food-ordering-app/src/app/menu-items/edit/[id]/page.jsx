@@ -1,24 +1,37 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import UserTabs from "@/components/layout/UserTabs";
+import MenuItemForm from "@/components/layout/MenuItemForm";
+
 import { useProfile } from "@/components/UseProfile";
-import EditableImage from "@/components/layout/EditableImage";
 import toast from "react-hot-toast";
 import Link from "next/link";
 import Left from "@/components/icons/Left";
-import { redirect } from "next/navigation";
-import MenuItemForm from "@/components/layout/MenuItemForm";
+import { redirect, useParams } from "next/navigation";
 
-const NewMenuItemPage = () => {
+const EditMenuItemPage = () => {
   const { loading, data } = useProfile();
 
+  const { id } = useParams();
+
   const [redirectToItems, setRedirectToItems] = useState(false);
+  const [menuItem, setMenuItem] = useState(null);
+
+  useEffect(() => {
+    fetch("/api/menu-items").then((res) => {
+      res.json().then((items) => {
+        const item = items.find((i) => i._id === id);
+        setMenuItem(item);
+      });
+    });
+  }, []);
 
   async function handleFormSubmit(e, data) {
     e.preventDefault();
+    data = { ...data, _id: id };
     const savingPromise = new Promise(async (resolve, reject) => {
       const response = await fetch("/api/menu-items", {
-        method: "POST",
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
@@ -34,6 +47,23 @@ const NewMenuItemPage = () => {
     });
 
     setRedirectToItems(true);
+  }
+
+  async function handleDeleteClick() {
+    const promise = new Promise(async (resolve, reject) => {
+      const response = await fetch("/api/menu-items?_id=" + id, {
+        method: "DELETE",
+      });
+
+      if (response.ok) resolve();
+      else reject();
+    });
+
+    await toast.promise(promise, {
+      loading: "Deleting...",
+      success: "Deleted",
+      error: "Error",
+    });
   }
 
   if (redirectToItems) {
@@ -57,9 +87,14 @@ const NewMenuItemPage = () => {
           <span>Show all menu items</span>
         </Link>
       </div>
-      <MenuItemForm onSubmit={handleFormSubmit} menuItem={null} />
+      <MenuItemForm menuItem={menuItem} onSubmit={handleFormSubmit} />
+      <div className="max-w-xs mx-auto mt-4">
+        <div className="max-w-xs ml-auto pl-4">
+          <button onClick={handleDeleteClick}>Delete this menu item</button>
+        </div>
+      </div>
     </section>
   );
 };
 
-export default NewMenuItemPage;
+export default EditMenuItemPage;

@@ -20,3 +20,12 @@ export const GET = async () => {
   mongoose.connect(process.env.MONGO_URL);
   return Response.json(await Category.find());
 };
+
+export const DELETE = async (req) => {
+  mongoose.connect(process.env.MONGO_URL);
+  const url = new URL(req.url);
+  const _id = url.searchParams.get("_id");
+  await Category.deleteOne({ _id });
+
+  return Response.json(true);
+};
