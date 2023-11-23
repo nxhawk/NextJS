@@ -5,6 +5,7 @@ import React from "react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useProfile } from "@/components/UseProfile";
+import DeleteButton from "@/components/DeleteButton";
 
 const CategoriesPage = () => {
   const [categoryName, setCategoryName] = useState("");
@@ -82,7 +83,7 @@ const CategoriesPage = () => {
   }
 
   return (
-    <section className="mt-8 max-w-lg mx-auto">
+    <section className="mt-8 max-w-2xl mx-auto">
       <UserTabs isAdmin={true} />
       <form className="mt-8" onSubmit={handleCategorySubmit}>
         <div className="flex gap-2 items-end">
@@ -137,9 +138,10 @@ const CategoriesPage = () => {
                 >
                   Edit
                 </button>
-                <button type="button" onClick={() => handleDeleteClick(c._id)}>
-                  Delete
-                </button>
+                <DeleteButton
+                  label={"Delete"}
+                  onDelete={() => handleDeleteClick(c._id)}
+                />
               </div>
             </div>
           ))}
